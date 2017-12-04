@@ -16,8 +16,8 @@ $(document).ready(function () {
         attribution: osmAttrib
     });
     kaart.addLayer(osm);
-    
-    
+
+
     var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
         maxZoom: 20,
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
@@ -49,28 +49,14 @@ $(document).ready(function () {
     var jsonLaag = new L.GeoJSON(mijnJSON, {
         onEachFeature: function (feature, layer) {
             layer.bindPopup(feature.properties.Naam);
+            console.log(feature.geometry.coordinates);
+            var line = new L.Polyline([[52,0], [feature.geometry.coordinates[1], feature.geometry.coordinates[0]]]);
+            kaart.addLayer(line);
         },
         pointToLayer: function (feature, latLng) {
-            if (feature.properties.soort == "school") {
-                return new L.Marker(latLng, {
-                    icon: schoolIcon
-                });
-            }
-            if (feature.properties.soort == "werk") {
-                return new L.Marker(latLng, {
-                    icon: werkIcon
-                });
-            }
-            if (feature.properties.soort == "wonen") {
-                return new L.Marker(latLng, {
-                    icon: woonIcon
-                });
-            }
-            if (feature.properties.soort == "sport") {
-                return new L.Marker(latLng, {
-                    icon: sportIcon
-                });
-            }
+            return new L.CircleMarker(latLng, {
+                radius: feature.properties.aantal/100,
+            })
         }
     });
     kaart.addLayer(jsonLaag);
@@ -86,13 +72,37 @@ $(document).ready(function () {
         'Open streetmap': osm,
         'Satelliet': googleSat
     };
-    
+
     var overlayLagen = {
         'markers': jsonLaag,
         'provincies': provincieWMS
     };
-    
+
     var lagenSwitcher = new L.Control.Layers(achtergronden, overlayLagen);
     kaart.addControl(lagenSwitcher);
-    
+
+    var lijn = new L.Polyline([[52, 5], [53, 6], [53, 8]], {
+        color: '#FF0000'
+    });
+    kaart.addLayer(lijn);
+
+    var polygoon = new L.Polygon([[52, 5], [53, 6], [53, 8], [55, 5]]);
+    kaart.addLayer(polygoon);
+
+    var cirkel = new L.Circle([52, 6], 5000, {
+        color: 'red'
+    });
+    kaart.addLayer(cirkel);
+
+    var cirkelMarker = new L.CircleMarker([52, 7], 20, {
+        color: 'green'
+    });
+    kaart.addLayer(cirkelMarker);
+
+//    L.Routing.control({
+//        waypoints: [
+//    L.latLng(57.74, 11.94),
+//    L.latLng(57.6792, 11.949)
+//  ]
+//    }).addTo(kaart);
 });
