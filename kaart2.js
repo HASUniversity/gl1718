@@ -1,4 +1,7 @@
 $(document).ready(function () {
+    var mijnPosLat;
+    var mijnPosLng;
+    
 
     var mapOptions = {
         zoomControl: true,
@@ -7,6 +10,12 @@ $(document).ready(function () {
     };
 
     var kaart = L.map("kaart", mapOptions);
+    kaart.locate();
+    
+    kaart.on('locationfound', function(evt){
+        mijnPostLat = evt.latlng.lat;
+        mijnPostLng = evt.latlng.lng;
+    });
 
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     var osmAttrib = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
@@ -45,7 +54,7 @@ $(document).ready(function () {
         popupAnchor: [0, -50]
     });
 
-    
+
     var lijnenLaag = new L.LayerGroup();
 
     var jsonLaag = new L.GeoJSON(mijnJSON, {
@@ -89,6 +98,17 @@ $(document).ready(function () {
         'lijn': lijnenLaag
     };
 
+    kaart.on('click', function (evt) {
+        console.log(evt);
+        L.Routing.control({
+            waypoints: [
+                L.latLng(mijnPosLat, mijnPosLng),
+                L.latLng(evt.latlng.lat, evt.latlng.lng)
+            ]
+        }).addTo(kaart);
+
+    });
+
 
     var lagenSwitcher = new L.Control.Layers(achtergronden, overlayLagen);
     kaart.addControl(lagenSwitcher);
@@ -103,21 +123,5 @@ $(document).ready(function () {
     var cirkelMarker = new L.CircleMarker([53, 4], 50);
     kaart.addLayer(cirkelMarker);
 
-    L.Routing.control({
-        waypoints: [
-    L.latLng(52, 5),
-    L.latLng(52, 6)
-  ]
-    }).addTo(kaart);
-
+ 
 });
-
-
-
-
-
-
-
-
-
-
